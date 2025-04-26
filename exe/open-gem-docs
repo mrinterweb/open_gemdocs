@@ -12,11 +12,14 @@ options = {}
 OptionParser.new do |opts|
   opts.banner = 'Usage: open-gem-docs [options] <gem_name>'
 
+  opts.on('--local', 'Use local documentation') do
+    options[:local] = true
+  end
   opts.on('-v', '--version VERSION', 'Specify the version') do |version|
     options[:version] = version
   end
 
-  opts.on('-l', '--latest', 'Use the latest version') do
+  opts.on('--latest', 'Use the latest version') do
     options[:latest] = true
   end
 
@@ -24,10 +27,34 @@ OptionParser.new do |opts|
     puts opts
     exit
   end
+
+  opts.on('-s', '--stop', 'stops the yarn server') do
+    OpenGemdocs::Yard.stop_server
+    exit
+  end
 end.parse!
 
 begin
-  OpenGemdocs::Browser.new(gem_name: ARGV[0], version: options[:version], use_latest: options[:latest]).open_browser
+  if options[:local]
+    unless OpenGemdocs::Yard.yard_installed?
+      puts 'To use the local documentation, you need to install Yard.'
+      puts 'Please install yard with `gem install yard`.'
+      puts 'Would you like to install it now? (y/n)'
+      case gets.chomp.downcase
+      when 'y'
+        system('gem install yard')
+        puts 'Yard installed successfully.'
+        puts 'Now you can use the local documentation with `open-gem-docs --local <gem_name>`'
+      else
+        puts 'Yard is required to use the local documentation.'
+        puts 'Please install it and try again.'
+      end
+      exit 0
+    end
+    OpenGemdocs::Yard.browse_gem(ARGV[0])
+  else
+    OpenGemdocs::Browser.new(gem_name: ARGV[0], version: options[:version], use_latest: options[:latest]).open_browser
+  end
 rescue OpenGemdocs::Error, ArgumentError => e
   puts e.message
   exit 1
