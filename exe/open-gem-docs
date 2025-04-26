@@ -10,7 +10,7 @@ require_relative File.join('..', 'lib', 'open_gemdocs')
 options = {}
 
 OptionParser.new do |opts|
-  opts.banner = 'Usage: gemdoc [options] <gem_name>'
+  opts.banner = 'Usage: open-gem-docs [options] <gem_name>'
 
   opts.on('-v', '--version VERSION', 'Specify the version') do |version|
     options[:version] = version
