@@ -1,6 +1,9 @@
 # OpenGemdocs
 
-This is a simple command line tool that helps open gem documentation on https://gemdocs.org.
+This is a simple command line tool that helps open gem documentation. There are two documentation sources you can use.
+
+1. local gems served with the yarn gem
+2. [https://gemdocs.org](https://gemdocs.org) - a good ruby gem documentation host
 
 * If ran from a directory with a Gemfile.lock, it will open the documentation for the version of the gem you are using unles you specify `--latest` or `--version` options
 * Defaults to open the latest version of the documentation
@@ -26,7 +29,7 @@ Currently, this only works on Macs because of the `open` command. It opens the d
 
 To see the available options.
 ```bash
-open_gemdocs --help
+open-gem-docs --help
 ```
 
 ### Example usage
@@ -34,18 +37,28 @@ If you are in a directory with a Gemfile.lock, it will open the documentation fo
 
 If you are not in a directory with a Gemfile.lock, it will open the latest version of the documentation.
 ```bash
-open_gemdocs rspec
+open-gem-docs rspec
 ```
 (Assuming you are in a directory with a Gemfile.lock, it will open the rspec docs for the version you are using.)
 
 Open a specific version (regardless of what is in your Gemfile.lock)
 ```bash
-open_gemdocs -v 3.12.0 rspec
+open-gem-docs -v 3.12.0 rspec
 ```
 
 Open the latest version of the documentation
 ```bash
-open_gemdocs --latest rspec
+open-gem-docs --latest rspec
+```
+
+To use a local documentation server. Run the following command from a directory where Gemfile.lock exists. This will serves the documentation for your currently installed gems.
+```bash
+open-gem-docs --local
+```
+
+You can also jump directly to a local doc gem page:
+```bash
+open-gem-docs --local rspec
 ```
 
 ## Development
