@@ -1,13 +1,14 @@
 # OpenGemdocs
 
-This is a simple command line tool that helps open gem documentation. There are two documentation sources you can use.
+This is a simple command line tool that helps open gem documentation. There are two documentation sources this gem supports.
 
 1. local gems served with the yarn gem
 2. [https://gemdocs.org](https://gemdocs.org) - a good ruby gem documentation host
 
-* If ran from a directory with a Gemfile.lock, it will open the documentation for the version of the gem you are using unles you specify `--latest` or `--version` options
-* Defaults to open the latest version of the documentation
+* If ran from a directory with a Gemfile.lock, it will open the documentation for the version specified in Gemfile.lock. When using the online source, you can specify `--latest` or `--version` options.
+* Defaults to open the latest version of the documentation if not `--local` or a `Gemfile.lock` is not found in the current directory.
 * Can specify a version of the docs to view
+* When ran with `--local`, it will either serve docs for all gems you have installed or the versions specified in your Gemfile.
 
 ## Installation
 

@@ -3,7 +3,7 @@
 module OpenGemdocs
   module Yard
     extend self
-    SERVER_COMMAND = 'yard server --gems --daemon ./'
+    SERVER_COMMAND = 'yard server --daemon'
 
     def browse_gem(gem_name)
       if server_running?
@@ -22,7 +22,13 @@ module OpenGemdocs
       `gem list yard -i`.strip == 'true'
     end
 
-    def start_yard_server = `#{SERVER_COMMAND}`
+    def start_yard_server
+      if File.exist?('Gemfile.lock')
+        `#{SERVER_COMMAND} --gemfile`
+      else
+        `#{SERVER_COMMAND} --gems`
+      end
+    end
 
     def server_running? = find_yard_pids.any?
 
