@@ -1,3 +1,34 @@
 #!/usr/bin/env ruby
+# frozen_string_literal: true
 
-require "open_gemdocs"
+require 'uri'
+require 'net/http'
+require 'json'
+require 'optparse'
+require_relative File.join('..', 'lib', 'open_gemdocs')
+
+options = {}
+
+OptionParser.new do |opts|
+  opts.banner = 'Usage: gemdoc [options] <gem_name>'
+
+  opts.on('-v', '--version VERSION', 'Specify the version') do |version|
+    options[:version] = version
+  end
+
+  opts.on('-l', '--latest', 'Use the latest version') do
+    options[:latest] = true
+  end
+
+  opts.on('-h', '--help', 'Display this help message') do
+    puts opts
+    exit
+  end
+end.parse!
+
+begin
+  OpenGemdocs::Browser.new(gem_name: ARGV[0], version: options[:version], use_latest: options[:latest]).open_browser
+rescue OpenGemdocs::Error, ArgumentError => e
+  puts e.message
+  exit 1
+end
