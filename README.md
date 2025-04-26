@@ -2,6 +2,10 @@
 
 This is a simple command line tool that helps open gem documentation on https://gemdocs.org.
 
+* If ran from a directory with a Gemfile.lock, it will open the documentation for the version of the gem you are using unles you specify `--latest` or `--version` options
+* Defaults to open the latest version of the documentation
+* Can specify a version of the docs to view
+
 ## Installation
 
 Install the gem and add to the application's Gemfile by executing:
@@ -20,15 +24,29 @@ gem install open_gemdocs
 
 Currently, this only works on Macs because of the `open` command. It opens the documentation for a gem in your default web browser.
 
-For terminal use:
-
+To see the available options.
 ```bash
 open_gemdocs --help
 ```
 
-To see the available options.
+### Example usage
+If you are in a directory with a Gemfile.lock, it will open the documentation for the version of the gem you are using unless you specify `--latest` or `--version` options.
 
-If you pass in the name of a gem from a directory that contains a Gemfile.lock file, it will determine what version of the gem you are using when it opens the online documentation.
+If you are not in a directory with a Gemfile.lock, it will open the latest version of the documentation.
+```bash
+open_gemdocs rspec
+```
+(Assuming you are in a directory with a Gemfile.lock, it will open the rspec docs for the version you are using.)
+
+Open a specific version (regardless of what is in your Gemfile.lock)
+```bash
+open_gemdocs -v 3.12.0 rspec
+```
+
+Open the latest version of the documentation
+```bash
+open_gemdocs --latest rspec
+```
 
 ## Development
 
