@@ -18,10 +18,6 @@ module OpenGemdocs
       puts "  When you're done, remember to stop the server with `open-gem-docs --stop`"
     end
 
-    def yard_installed?
-      `gem list yard -i`.strip == 'true'
-    end
-
     def start_yard_server
       if File.exist?('Gemfile.lock')
         `#{SERVER_COMMAND} --gemfile`
