@@ -1,6 +1,6 @@
 # OpenGemdocs
 
-This is a simple command line tool that helps open gem documentation. There are two documentation sources this gem supports.
+This is ruby gem that provides a simple command line tool that helps open gem documentation. There are two documentation sources this gem supports.
 
 1. local gems served with the yard gem via `yarn server --gems` or `yarn server --gemfile` accessible at http://localhost:8808.
 2. [https://gemdocs.org](https://gemdocs.org) - a good ruby gem documentation host
@@ -15,7 +15,7 @@ This is a simple command line tool that helps open gem documentation. There are 
 Install the gem and add to the application's Gemfile by executing:
 
 ```bash
-bundle add open_gemdocs
+bundle add open_gemdocs --group development
 ```
 
 If bundler is not being used to manage dependencies, install the gem by executing:
