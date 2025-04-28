@@ -2,7 +2,7 @@
 
 This is ruby gem that provides a simple command line tool that helps open gem documentation. There are two documentation sources this gem supports.
 
-1. local gems served with the yard gem via `yarn server --gems` or `yarn server --gemfile` accessible at http://localhost:8808.
+1. local gems served with the yard gem via `yard server --gems` or `yard server --gemfile` accessible at http://localhost:8808.
 2. [https://gemdocs.org](https://gemdocs.org) - a good ruby gem documentation host
 
 * If ran from a directory with a Gemfile.lock, it will open the documentation for the version specified in Gemfile.lock. When using the online source, you can specify `--latest` or `--version` options.
