@@ -39,40 +39,38 @@ module OpenGemdocs
 
       def handle_request(req, res)
         if req.request_method == "POST"
-          begin
-            body = JSON.parse(req.body)
-            response = @handlers.handle(body)
-
-            res.content_type = "application/json"
-            res.body = JSON.generate(response)
-            res.status = 200
-          rescue JSON::ParserError => e
-            res.content_type = "application/json"
-            res.body = JSON.generate({
-                                       jsonrpc: "2.0",
-                                       error: {
-                                         code: -32_700,
-                                         message: "Parse error",
-                                         data: e.message
-                                       }
-                                     })
-            res.status = 200
-          rescue StandardError => e
-            res.content_type = "application/json"
-            res.body = JSON.generate({
-                                       jsonrpc: "2.0",
-                                       error: {
-                                         code: -32_603,
-                                         message: "Internal error",
-                                         data: e.message
-                                       }
-                                     })
-            res.status = 200
-          end
+          handle_post_request(req, res)
         else
           res.status = 405
           res.body = "Method not allowed"
         end
+      end
+
+      def handle_post_request(req, res)
+        body = JSON.parse(req.body)
+        response = @handlers.handle(body)
+        send_json_response(res, response)
+      rescue JSON::ParserError => e
+        send_json_error(res, -32_700, "Parse error", e.message)
+      rescue StandardError => e
+        send_json_error(res, -32_603, "Internal error", e.message)
+      end
+
+      def send_json_response(res, response)
+        res.content_type = "application/json"
+        res.body = JSON.generate(response)
+        res.status = 200
+      end
+
+      def send_json_error(res, code, message, data)
+        send_json_response(res, {
+                             jsonrpc: "2.0",
+                             error: {
+                               code: code,
+                               message: message,
+                               data: data
+                             }
+                           })
       end
     end
   end

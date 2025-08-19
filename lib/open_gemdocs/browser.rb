@@ -57,9 +57,7 @@ module OpenGemdocs
       @version_data ||= begin
         uri = URI("https://gemdocs.org/gems/#{ARGV[0]}/versions.json")
         res = Net::HTTP.get_response(uri)
-        unless res.is_a?(Net::HTTPSuccess)
-          raise Error, "HTTP request failed to uri: #{uri} -- #{res.code} #{res.message}"
-        end
+        raise Error, "HTTP request failed to uri: #{uri} -- #{res.code} #{res.message}" unless res.is_a?(Net::HTTPSuccess)
 
         JSON.parse(res.body)["versions"]
       end
