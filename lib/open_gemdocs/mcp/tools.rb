@@ -198,12 +198,29 @@ module OpenGemdocs
 
       def start_yard_server
         if OpenGemdocs::Yard.server_running?
-          {
-            "content" => [{
-              "type" => "text",
-              "text" => "Yard server is already running on port 8808"
-            }]
-          }
+          current_dir = Dir.pwd
+          yard_dir = OpenGemdocs::Yard.yard_server_directory
+          
+          if yard_dir && yard_dir != current_dir
+            # Yard is running in a different directory
+            {
+              "content" => [{
+                "type" => "text",
+                "text" => "Yard server is running in a different directory:\n" \
+                         "Running in: #{yard_dir}\n" \
+                         "Current dir: #{current_dir}\n\n" \
+                         "The server is serving gems from '#{yard_dir}'.\n" \
+                         "To serve gems from the current directory, stop the server first with 'stop_yard_server' tool."
+              }]
+            }
+          else
+            {
+              "content" => [{
+                "type" => "text",
+                "text" => "Yard server is already running on port 8808"
+              }]
+            }
+          end
         else
           OpenGemdocs::Yard.start_yard_server
           sleep 2 # Give server time to start
@@ -249,10 +266,21 @@ module OpenGemdocs
       def get_yard_server_status
         if OpenGemdocs::Yard.server_running?
           pids = OpenGemdocs::Yard.find_yard_pids
+          yard_dir = OpenGemdocs::Yard.yard_server_directory
+          current_dir = Dir.pwd
+          
+          status = "Yard server is running (PID: #{pids.join(", ")}) on port 8808"
+          status += "\nServing from: #{yard_dir}" if yard_dir
+          
+          if yard_dir && yard_dir != current_dir
+            status += "\nCurrent directory: #{current_dir}"
+            status += "\n\nNote: The server is serving gems from a different directory."
+          end
+          
           {
             "content" => [{
               "type" => "text",
-              "text" => "Yard server is running (PID: #{pids.join(", ")}) on port 8808"
+              "text" => status
             }]
           }
         else

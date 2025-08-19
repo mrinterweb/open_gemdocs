@@ -33,6 +33,20 @@ module OpenGemdocs
       `lsof -i TCP:8808 | grep -E "^ruby.*:8808"`.strip.split("\n").map { |line| line.split(/\s+/)[1] }
     end
 
+    def yard_server_directory
+      pids = find_yard_pids
+      return nil if pids.empty?
+
+      # Get the working directory of the first Yard process
+      pid = pids.first
+      cwd_line = `lsof -p #{pid} 2>/dev/null | grep cwd`.strip
+      return nil if cwd_line.empty?
+
+      # Extract the directory path from lsof output
+      parts = cwd_line.split(/\s+/)
+      parts.last if parts.length >= 9
+    end
+
     def stop_server
       yard_pids = find_yard_pids
       if yard_pids.any?
