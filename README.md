@@ -69,6 +69,49 @@ Example using the `open-local-docs` command:
 open-local-docs rspec
 ```
 
+## MCP Server
+
+The gem includes an MCP (Model Context Protocol) server that allows AI assistants to programmatically access Ruby gem documentation. The MCP server manages a local Yard documentation server and provides tools for searching and retrieving gem documentation.
+
+### Starting the MCP Server
+
+```bash
+open-gem-docs-mcp
+```
+
+By default, the server runs on port 6789. You can specify a different port:
+
+```bash
+open-gem-docs-mcp --port 8080
+```
+
+### Available MCP Tools
+
+The MCP server provides the following tools:
+
+- **search_gems** - Search for installed Ruby gems by name
+- **get_gem_info** - Get detailed information about a specific gem
+- **start_yard_server** - Start the Yard documentation server
+- **stop_yard_server** - Stop the Yard documentation server  
+- **get_yard_server_status** - Check if the Yard server is running
+- **get_gem_documentation_url** - Get the local documentation URL for a gem
+- **fetch_gem_docs** - Fetch documentation content from the Yard server
+
+### Using with Claude Desktop
+
+To use the MCP server with Claude Desktop, add the following to your Claude Desktop configuration:
+
+```json
+{
+  "mcpServers": {
+    "open_gemdocs": {
+      "command": "open-gem-docs-mcp",
+      "args": ["--port", "6789"]
+    }
+  }
+}
+```
+
 ## Development
 
 After checking out the repo, run `bin/setup` to install dependencies. Then, run `rake spec` to run the tests. You can also run `bin/console` for an interactive prompt that will allow you to experiment.

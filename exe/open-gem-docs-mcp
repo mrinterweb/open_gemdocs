@@ -1,0 +1,53 @@
+#!/usr/bin/env ruby
+# frozen_string_literal: true
+
+require "optparse"
+require_relative "../lib/open_gemdocs/version"
+require_relative "../lib/open_gemdocs/mcp/server"
+require_relative "../lib/open_gemdocs/mcp/handlers"
+require_relative "../lib/open_gemdocs/mcp/tools"
+
+options = { port: 6789 }
+
+OptionParser.new do |opts|
+  opts.banner = "Usage: open-gem-docs-mcp [options]"
+
+  opts.on("-p", "--port PORT", Integer, "Port to run MCP server on (default: 6789)") do |p|
+    options[:port] = p
+  end
+
+  opts.on("-v", "--version", "Show version") do
+    puts "open_gemdocs MCP server v#{OpenGemdocs::VERSION}"
+    exit
+  end
+
+  opts.on("-h", "--help", "Show this help message") do
+    puts opts
+    puts
+    puts "This MCP server provides tools for accessing Ruby gem documentation."
+    puts "It integrates with the Yard documentation server to provide local docs."
+    puts
+    puts "Available MCP tools:"
+    puts "  - search_gems: Search for installed Ruby gems"
+    puts "  - get_gem_info: Get detailed information about a gem"
+    puts "  - start_yard_server: Start the Yard documentation server"
+    puts "  - stop_yard_server: Stop the Yard documentation server"
+    puts "  - get_yard_server_status: Check Yard server status"
+    puts "  - get_gem_documentation_url: Get the documentation URL for a gem"
+    puts "  - fetch_gem_docs: Fetch documentation content from Yard server"
+    exit
+  end
+end.parse!
+
+begin
+  server = OpenGemdocs::MCP::Server.new(port: options[:port])
+  server.start
+rescue Interrupt
+  puts "\nShutting down..."
+  exit 0
+rescue StandardError => e
+  warn "Error: #{e.message}"
+  warn e.backtrace if ENV["DEBUG"]
+  exit 1
+end
+
