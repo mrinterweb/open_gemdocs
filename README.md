@@ -99,6 +99,12 @@ The MCP server provides the following tools:
 - **get_gem_documentation_url** - Get the local documentation URL for a gem
 - **fetch_gem_docs** - Fetch documentation content from the Yard server
 
+### Using with Claude Code
+
+```
+claude mcp add open-gem-docs -- open-gem-docs-mcp-stdio
+```
+
 ### Using with Claude Desktop
 
 To use the MCP server with Claude Desktop, add the following to your Claude Desktop configuration:

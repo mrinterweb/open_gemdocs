@@ -10,6 +10,7 @@ module OpenGemdocs
       def initialize
         # Ensure we can access the Yard module
         require_relative "../yard"
+        require_relative "../yard_json_formatter"
       end
 
       def list
@@ -68,7 +69,7 @@ module OpenGemdocs
           },
           {
             "name" => "get_gem_documentation_url",
-            "description" => "Get the local documentation URL for a gem",
+            "description" => "Get the local documentation URL for a gem (Note: Use fetch_gem_docs instead to get actual documentation content)",
             "inputSchema" => {
               "type" => "object",
               "properties" => {
@@ -86,7 +87,7 @@ module OpenGemdocs
           },
           {
             "name" => "fetch_gem_docs",
-            "description" => "Fetch documentation content for a gem from the Yard server",
+            "description" => "Fetch structured documentation content for a gem or specific class/module. Returns formatted documentation with methods, attributes, parameters, and examples. Use this instead of fetching URLs directly.",
             "inputSchema" => {
               "type" => "object",
               "properties" => {
@@ -96,7 +97,7 @@ module OpenGemdocs
                 },
                 "path" => {
                   "type" => "string",
-                  "description" => 'Optional: specific documentation path (e.g., "ActiveRecord/Base")'
+                  "description" => 'Optional: specific class or module path (e.g., "FactoryBot::Trait" or "ActiveRecord::Base")'
                 }
               },
               "required" => ["gem_name"]
@@ -200,17 +201,17 @@ module OpenGemdocs
         if OpenGemdocs::Yard.server_running?
           current_dir = Dir.pwd
           yard_dir = OpenGemdocs::Yard.yard_server_directory
-          
+
           if yard_dir && yard_dir != current_dir
             # Yard is running in a different directory
             {
               "content" => [{
                 "type" => "text",
                 "text" => "Yard server is running in a different directory:\n" \
-                         "Running in: #{yard_dir}\n" \
-                         "Current dir: #{current_dir}\n\n" \
-                         "The server is serving gems from '#{yard_dir}'.\n" \
-                         "To serve gems from the current directory, stop the server first with 'stop_yard_server' tool."
+                          "Running in: #{yard_dir}\n" \
+                          "Current dir: #{current_dir}\n\n" \
+                          "The server is serving gems from '#{yard_dir}'.\n" \
+                          "To serve gems from the current directory, stop the server first with 'stop_yard_server' tool."
               }]
             }
           else
@@ -268,15 +269,15 @@ module OpenGemdocs
           pids = OpenGemdocs::Yard.find_yard_pids
           yard_dir = OpenGemdocs::Yard.yard_server_directory
           current_dir = Dir.pwd
-          
+
           status = "Yard server is running (PID: #{pids.join(", ")}) on port 8808"
           status += "\nServing from: #{yard_dir}" if yard_dir
-          
+
           if yard_dir && yard_dir != current_dir
             status += "\nCurrent directory: #{current_dir}"
             status += "\n\nNote: The server is serving gems from a different directory."
           end
-          
+
           {
             "content" => [{
               "type" => "text",
@@ -302,94 +303,168 @@ module OpenGemdocs
 
         url = "http://localhost:8808/docs/#{gem_name}"
         url += "/#{class_name.gsub("::", "/")}" if class_name
+        
+        path_hint = class_name || "the gem overview"
 
         {
           "content" => [{
             "type" => "text",
-            "text" => "Documentation URL: #{url}\n\nNote: The Yard server is running on port 8808"
+            "text" => "Documentation URL: #{url}\n\n" \
+                     "**Tip:** Instead of fetching this URL directly, use the `fetch_gem_docs` tool with:\n" \
+                     "- gem_name: \"#{gem_name}\"\n" \
+                     "- path: \"#{class_name}\" (if you want specific class documentation)\n\n" \
+                     "This will give you structured documentation for #{path_hint}."
           }]
         }
       end
 
       def fetch_gem_docs(gem_name, path = nil)
-        # Ensure server is running
-        unless OpenGemdocs::Yard.server_running?
-          OpenGemdocs::Yard.start_yard_server
-          sleep 2
-        end
+        # Use the YardJsonFormatter to get structured documentation
+        result = OpenGemdocs::YardJsonFormatter.format_gem_docs(gem_name, path)
 
-        url = "http://localhost:8808/docs/#{gem_name}"
-        url += "/#{path.gsub("::", "/")}" if path
-
-        begin
-          uri = URI(url)
-          response = Net::HTTP.get_response(uri)
-
-          case response.code
-          when "200"
-            # Extract text content from HTML (basic extraction)
-            body = response.body
-            # Remove script and style tags
-            body = body.gsub(%r{<script[^>]*>.*?</script>}m, "")
-            body = body.gsub(%r{<style[^>]*>.*?</style>}m, "")
-            # Extract title if present
-            title = body.match(%r{<title>([^<]+)</title>}i)&.captures&.first || gem_name
-
-            # Extract main content (yard uses #content div)
-            content = if body.match(%r{<div id="content"[^>]*>(.*?)</div>}m)
-                        body.match(%r{<div id="content"[^>]*>(.*?)</div>}m).captures.first
-                      else
-                        body
-                      end
-
-            # Basic HTML to text conversion
-            content = content.gsub(/<[^>]+>/, " ")  # Remove HTML tags
-            content = content.gsub(/\s+/, " ")      # Normalize whitespace
-            content = content.strip
-
-            # Truncate if too long
-            content = "#{content[0..1997]}..." if content.length > 2000
-
-            {
-              "content" => [{
-                "type" => "text",
-                "text" => "**#{title}**\n\n#{content}\n\n[Full documentation: #{url}]"
-              }]
-            }
-          when "202"
-            {
-              "content" => [{
-                "type" => "text",
-                "text" => "Documentation is being generated for '#{gem_name}'. This usually takes a few seconds.\n\nPlease try again shortly. The documentation will be available at: #{url}"
-              }],
-              "isError" => false
-            }
-          when "404"
-            {
-              "content" => [{
-                "type" => "text",
-                "text" => "Documentation not found for '#{gem_name}'. The gem might not be installed or the path '#{path}' might be incorrect."
-              }],
-              "isError" => true
-            }
-          else
-            {
-              "content" => [{
-                "type" => "text",
-                "text" => "Failed to fetch documentation (HTTP #{response.code}): #{response.message}"
-              }],
-              "isError" => true
-            }
-          end
-        rescue StandardError => e
+        if result[:error]
           {
             "content" => [{
               "type" => "text",
-              "text" => "Error fetching documentation: #{e.message}"
+              "text" => result[:error]
             }],
             "isError" => true
           }
+        else
+          # Format the JSON result into readable text
+          formatted_text = format_json_docs(result, gem_name, path)
+
+          {
+            "content" => [{
+              "type" => "text",
+              "text" => formatted_text
+            }]
+          }
         end
+      end
+
+      def format_json_docs(data, gem_name, path)
+        lines = []
+
+        if path
+          # Specific object documentation
+          obj = data
+          lines << "# #{obj[:path]}"
+          lines << ""
+          lines << "**Type:** #{obj[:type]}"
+          lines << "**Namespace:** #{obj[:namespace]}" if obj[:namespace]
+          lines << ""
+
+          if obj[:docstring]
+            lines << "## Description"
+            lines << obj[:docstring]
+            lines << ""
+          end
+
+          if obj[:superclass]
+            lines << "**Inherits from:** #{obj[:superclass]}"
+            lines << ""
+          end
+
+          if obj[:includes] && obj[:includes].any?
+            lines << "**Includes:** #{obj[:includes].join(", ")}"
+            lines << ""
+          end
+
+          if obj[:parameters] && obj[:parameters].any?
+            lines << "## Parameters"
+            obj[:parameters].each do |param|
+              default = param[:default] ? " = #{param[:default]}" : ""
+              lines << "- `#{param[:name]}#{default}`"
+            end
+            lines << ""
+          end
+
+          if obj[:methods] && obj[:methods].any?
+            lines << "## Methods"
+
+            # Group methods by visibility
+            %w[public protected private].each do |visibility|
+              visible_methods = obj[:methods].select { |m| m[:visibility] == visibility }
+              next if visible_methods.empty?
+
+              lines << ""
+              lines << "### #{visibility.capitalize} Methods"
+              visible_methods.each do |method|
+                return_info = method[:return_type] ? " → #{method[:return_type].join(", ")}" : ""
+                lines << "- `#{method[:signature]}`#{return_info}"
+                lines << "  #{method[:docstring]}" if method[:docstring]
+              end
+            end
+            lines << ""
+          end
+
+          if obj[:attributes] && obj[:attributes].any?
+            lines << "## Attributes"
+            obj[:attributes].each do |attr|
+              access = []
+              access << "read" if attr[:read]
+              access << "write" if attr[:write]
+              lines << "- `#{attr[:name]}` (#{access.join("/")})"
+              lines << "  #{attr[:docstring]}" if attr[:docstring] && !attr[:docstring].empty?
+            end
+            lines << ""
+          end
+
+          if obj[:tags] && obj[:tags].any?
+            examples = obj[:tags].select { |t| t[:tag_name] == "example" }
+            if examples.any?
+              lines << "## Examples"
+              examples.each do |example|
+                lines << "```ruby"
+                lines << example[:text]
+                lines << "```"
+              end
+              lines << ""
+            end
+          end
+        else
+          # Gem overview documentation
+          lines << "# #{gem_name}"
+
+          if data[:summary]
+            lines << ""
+            lines << "**Version:** #{data[:summary][:version]}" if data[:summary][:version]
+            lines << "**Homepage:** #{data[:summary][:homepage]}" if data[:summary][:homepage]
+            lines << ""
+            lines << data[:summary][:description] if data[:summary][:description]
+            lines << ""
+          end
+
+          if data[:namespaces] && data[:namespaces].any?
+            lines << "## Top-level Namespaces"
+            data[:namespaces].each do |ns|
+              lines << "- `#{ns[:path]}` (#{ns[:type]})"
+            end
+            lines << ""
+          end
+
+          if data[:classes] && data[:classes].any?
+            lines << "## Classes"
+            data[:classes].each do |cls|
+              super_info = cls[:superclass] ? " < #{cls[:superclass]}" : ""
+              lines << "- `#{cls[:path]}#{super_info}` (#{cls[:methods_count]} methods)"
+              lines << "  #{cls[:docstring][0..100]}..." if cls[:docstring]
+            end
+            lines << ""
+          end
+
+          if data[:modules] && data[:modules].any?
+            lines << "## Modules"
+            data[:modules].each do |mod|
+              lines << "- `#{mod[:path]}` (#{mod[:methods_count]} methods)"
+              lines << "  #{mod[:docstring][0..100]}..." if mod[:docstring]
+            end
+            lines << ""
+          end
+        end
+
+        lines.join("\n")
       end
     end
   end
