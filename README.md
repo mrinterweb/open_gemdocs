@@ -1,6 +1,8 @@
 # OpenGemdocs
 
-This is ruby gem that provides a simple command line tool that helps open gem documentation. There are two documentation sources this gem supports.
+This gem makes accessing ruby gem documentation easy for users with a CLI tool and AI agents with a MCP server.
+
+There are two documentation sources this gem supports.
 
 1. local gems served with the yard gem via `yard server --gems` or `yard server --gemfile` accessible at http://localhost:8808.
 2. [https://gemdocs.org](https://gemdocs.org) - a good ruby gem documentation host
@@ -24,7 +26,7 @@ If bundler is not being used to manage dependencies, install the gem by executin
 gem install open_gemdocs
 ```
 
-## Usage
+## CLI Usage
 
 Currently, this only works on Macs because of the `open` command. It opens the documentation for a gem in your default web browser.
 
@@ -92,7 +94,7 @@ The MCP server provides the following tools:
 - **search_gems** - Search for installed Ruby gems by name
 - **get_gem_info** - Get detailed information about a specific gem
 - **start_yard_server** - Start the Yard documentation server
-- **stop_yard_server** - Stop the Yard documentation server  
+- **stop_yard_server** - Stop the Yard documentation server
 - **get_yard_server_status** - Check if the Yard server is running
 - **get_gem_documentation_url** - Get the local documentation URL for a gem
 - **fetch_gem_docs** - Fetch documentation content from the Yard server

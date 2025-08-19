@@ -49,24 +49,24 @@ module OpenGemdocs
           rescue JSON::ParserError => e
             res.content_type = "application/json"
             res.body = JSON.generate({
-                                       jsonrpc: "2.0",
-                                       error: {
-                                         code: -32_700,
-                                         message: "Parse error",
-                                         data: e.message
-                                       }
-                                     })
+              jsonrpc: "2.0",
+              error: {
+                code: -32_700,
+                message: "Parse error",
+                data: e.message
+              }
+            })
             res.status = 200
           rescue StandardError => e
             res.content_type = "application/json"
             res.body = JSON.generate({
-                                       jsonrpc: "2.0",
-                                       error: {
-                                         code: -32_603,
-                                         message: "Internal error",
-                                         data: e.message
-                                       }
-                                     })
+              jsonrpc: "2.0",
+              error: {
+                code: -32_603,
+                message: "Internal error",
+                data: e.message
+              }
+            })
             res.status = 200
           end
         else
