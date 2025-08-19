@@ -71,14 +71,45 @@ bundle exec exe/open-gem-docs --local rails
 bundle exec exe/open-local-docs rails
 ```
 
+### MCP Server
+```bash
+# Start MCP server on default port (6789)
+bundle exec exe/open-gem-docs-mcp
+
+# Start MCP server on custom port
+bundle exec exe/open-gem-docs-mcp --port 8080
+
+# Start MCP server in stdio mode (for Claude Desktop integration)
+bundle exec exe/open-gem-docs-mcp-stdio
+
+# View MCP server help and available tools
+bundle exec exe/open-gem-docs-mcp --help
+```
+
 ## Architecture
 
-The gem follows a simple, focused architecture with three main components:
+The gem follows a simple, focused architecture with core documentation components and MCP server integration:
 
 ### Core Module Structure
 - **`lib/open_gemdocs.rb`**: Main module that orchestrates between Browser and Yard classes based on user options
 - **`lib/open_gemdocs/browser.rb`**: Handles opening online documentation from gemdocs.org, includes Gemfile.lock parsing for version detection
 - **`lib/open_gemdocs/yard.rb`**: Manages local Yard server lifecycle (starting, stopping, checking status) and opens local documentation
+
+### MCP (Model Context Protocol) Integration
+The gem includes MCP server capabilities for AI assistant integration:
+
+- **`lib/open_gemdocs/mcp/server.rb`**: MCP server implementation supporting both TCP and stdio modes
+- **`lib/open_gemdocs/mcp/handlers.rb`**: JSON-RPC request handling for MCP protocol
+- **`lib/open_gemdocs/mcp/tools.rb`**: MCP tool implementations providing programmatic access to gem documentation
+
+Available MCP tools:
+- `search_gems`: Search for installed Ruby gems by name
+- `get_gem_info`: Get detailed metadata about a specific gem
+- `start_yard_server`: Start the Yard documentation server
+- `stop_yard_server`: Stop the Yard documentation server
+- `get_yard_server_status`: Check if Yard server is running and where
+- `get_gem_documentation_url`: Get the local documentation URL for a gem
+- `fetch_gem_docs`: Fetch documentation content from Yard server
 
 ### Key Implementation Details
 
@@ -90,11 +121,16 @@ The gem follows a simple, focused architecture with three main components:
 ### CLI Entry Points
 - **`exe/open-gem-docs`**: Full-featured CLI with option parsing (--local, --version, etc.)
 - **`exe/open-local-docs`**: Convenience wrapper that always uses local documentation
+- **`exe/open-gem-docs-mcp`**: MCP server for TCP connections (default port 6789)
+- **`exe/open-gem-docs-mcp-stdio`**: MCP server for stdio mode (Claude Desktop integration)
 
 ## Important Considerations
 
 - The gem is signed with a certificate in `certs/mrinterweb.pem` - ensure this is present when building releases
 - Requires Ruby >= 3.1.0
 - The test suite needs expansion - currently only has placeholder tests
-- When modifying CLI behavior, update both executables if needed
+- When modifying CLI behavior, update all relevant executables if needed
 - The Yard server runs on port 8808 by default
+- MCP server runs on port 6789 by default (configurable via --port)
+- MCP stdio mode is designed for Claude Desktop integration via the MCP protocol
+- The MCP server automatically manages the Yard server lifecycle as needed
