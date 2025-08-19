@@ -2,10 +2,11 @@
 
 This gem makes accessing ruby gem documentation easy for users with a CLI tool and AI agents with a MCP server.
 
-There are two documentation sources this gem supports.
+There are three documentation sources this gem supports.
 
 1. local gems served with the yard gem via `yard server --gems` or `yard server --gemfile` accessible at http://localhost:8808.
 2. [https://gemdocs.org](https://gemdocs.org) - a good ruby gem documentation host
+3. Locally compiled documentation for gems defined in your `Gemfile.lock` using the `document-bundle` command. The MCP server uses this.
 
 * If ran from a directory with a Gemfile.lock, it will open the documentation for the version specified in Gemfile.lock. When using the online source, you can specify `--latest` or `--version` options.
 * Defaults to open the latest version of the documentation if not `--local` or a `Gemfile.lock` is not found in the current directory.
