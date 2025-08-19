@@ -82,22 +82,6 @@ Change directory to a repository with a `Gemfile.lock` and run the following com
 document-bundle
 ```
 
-## MCP Server
-
-The gem includes an MCP (Model Context Protocol) server that allows AI assistants to programmatically access Ruby gem documentation. The MCP server manages a local Yard documentation server and provides tools for searching and retrieving gem documentation.
-
-### Starting the MCP Server
-
-```bash
-open-gem-docs-mcp
-```
-
-By default, the server runs on port 6789. You can specify a different port:
-
-```bash
-open-gem-docs-mcp --port 8080
-```
-
 ### Available MCP Tools
 
 The MCP server provides the following tools:
@@ -116,20 +100,13 @@ The MCP server provides the following tools:
 claude mcp add open-gem-docs -- open-gem-docs-mcp-stdio
 ```
 
-### Using with Claude Desktop
+## ToDo
+- [ ] Test the MCP server with different AI agents
+- [ ] Support agents launched in directories that do not have a Gemfile.lock
+- [ ] Experiment with providing direct gem source files to see if that is more beneficial for the AI agent.
 
-To use the MCP server with Claude Desktop, add the following to your Claude Desktop configuration:
-
-```json
-{
-  "mcpServers": {
-    "open_gemdocs": {
-      "command": "open-gem-docs-mcp",
-      "args": ["--port", "6789"]
-    }
-  }
-}
-```
+## Limitations
+- The MCP server only supports Mac and linux platforms currently due to bash commands it uses.
 
 ## Development
 
