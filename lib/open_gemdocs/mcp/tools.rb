@@ -142,13 +142,13 @@ module OpenGemdocs
 
         gems = `gem list --local`.lines
                                  .map do |line|
-          parts = line.strip.match(/^([^\s]+)\s+\(([^)]+)\)/)
-          next unless parts
+                                   parts = line.strip.match(/^([^\s]+)\s+\(([^)]+)\)/)
+                                   next unless parts
 
-          { name: parts[1], versions: parts[2] }
-        end
-          .compact
-          .select { |gem| gem[:name].downcase.include?(query.downcase) }
+                                   { name: parts[1], versions: parts[2] }
+                                 end
+                                 .compact
+                                 .select { |gem| gem[:name].downcase.include?(query.downcase) }
 
         if gems.empty?
           {
@@ -320,7 +320,7 @@ module OpenGemdocs
             content = content.strip
 
             # Truncate if too long
-            content = content[0..1997] + "..." if content.length > 2000
+            content = "#{content[0..1997]}..." if content.length > 2000
 
             {
               "content" => [{
@@ -366,4 +366,3 @@ module OpenGemdocs
     end
   end
 end
-
