@@ -39,6 +39,7 @@ Gem::Specification.new do |spec|
 
   # Uncomment to register a new dependency of your gem
   spec.add_dependency "yard", "~> 0.9.26"
+  spec.add_dependency "webrick", "~> 1.8"
 
   # For more information and examples about making a new gem, check out our
   # guide at: https://bundler.io/guides/creating_gem.html

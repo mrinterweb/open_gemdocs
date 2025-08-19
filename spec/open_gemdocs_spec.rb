@@ -5,7 +5,7 @@ RSpec.describe OpenGemdocs do
     expect(OpenGemdocs::VERSION).not_to be nil
   end
 
-  it "does something useful" do
-    expect(false).to eq(true)
+  it "has MCP module" do
+    expect(OpenGemdocs::MCP).to be_a(Module)
   end
 end

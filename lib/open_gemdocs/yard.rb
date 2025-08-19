@@ -3,6 +3,7 @@
 module OpenGemdocs
   module Yard
     extend self
+
     SERVER_COMMAND = 'yard server --daemon'
 
     def browse_gem(gem_name)
