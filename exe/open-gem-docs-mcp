@@ -50,4 +50,3 @@ rescue StandardError => e
   warn e.backtrace if ENV["DEBUG"]
   exit 1
 end
-

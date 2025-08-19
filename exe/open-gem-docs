@@ -1,34 +1,34 @@
 #!/usr/bin/env ruby
 # frozen_string_literal: true
 
-require 'uri'
-require 'net/http'
-require 'json'
-require 'optparse'
-require_relative File.join('..', 'lib', 'open_gemdocs')
+require "uri"
+require "net/http"
+require "json"
+require "optparse"
+require_relative File.join("..", "lib", "open_gemdocs")
 
 options = {}
 
 OptionParser.new do |opts|
-  opts.banner = 'Usage: open-gem-docs [options] <gem_name>'
+  opts.banner = "Usage: open-gem-docs [options] <gem_name>"
 
-  opts.on('--local', 'Use local documentation') do
+  opts.on("--local", "Use local documentation") do
     options[:local] = true
   end
-  opts.on('-v', '--version VERSION', 'Specify the version') do |version|
+  opts.on("-v", "--version VERSION", "Specify the version") do |version|
     options[:version] = version
   end
 
-  opts.on('--latest', 'Use the latest version') do
+  opts.on("--latest", "Use the latest version") do
     options[:latest] = true
   end
 
-  opts.on('-h', '--help', 'Display this help message') do
+  opts.on("-h", "--help", "Display this help message") do
     puts opts
     exit
   end
 
-  opts.on('-s', '--stop', 'stops the yard server') do
+  opts.on("-s", "--stop", "stops the yard server") do
     OpenGemdocs::Yard.stop_server
     exit
   end

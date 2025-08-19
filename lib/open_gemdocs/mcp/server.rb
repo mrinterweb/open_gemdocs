@@ -77,4 +77,3 @@ module OpenGemdocs
     end
   end
 end
-

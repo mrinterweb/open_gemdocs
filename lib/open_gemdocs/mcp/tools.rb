@@ -320,7 +320,7 @@ module OpenGemdocs
             content = content.strip
 
             # Truncate if too long
-            content = content[0..1997] + "..." if content.length > 2000
+            content = "#{content[0..1997]}..." if content.length > 2000
 
             {
               "content" => [{
@@ -366,4 +366,3 @@ module OpenGemdocs
     end
   end
 end
-
