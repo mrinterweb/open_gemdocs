@@ -71,6 +71,16 @@ Example using the `open-local-docs` command:
 open-local-docs rspec
 ```
 
+## Process Gem documentation sources
+
+Pre-processing the gem docs makes lookups faster.
+
+Change directory to a repository with a `Gemfile.lock` and run the following command:
+
+```
+document-bundle
+```
+
 ## MCP Server
 
 The gem includes an MCP (Model Context Protocol) server that allows AI assistants to programmatically access Ruby gem documentation. The MCP server manages a local Yard documentation server and provides tools for searching and retrieving gem documentation.
