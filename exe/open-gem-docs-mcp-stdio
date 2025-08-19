@@ -1,0 +1,76 @@
+#!/usr/bin/env ruby
+# frozen_string_literal: true
+
+require "json"
+require_relative "../lib/open_gemdocs/version"
+require_relative "../lib/open_gemdocs/mcp/handlers"
+require_relative "../lib/open_gemdocs/mcp/tools"
+
+# MCP stdio server for Claude Desktop
+class MCPStdioServer
+  def initialize
+    @handlers = OpenGemdocs::MCP::Handlers.new
+    STDERR.puts "open_gemdocs MCP server v#{OpenGemdocs::VERSION} (stdio mode)"
+  end
+
+  def run
+    STDERR.puts "MCP server started in stdio mode"
+    
+    loop do
+      begin
+        # Read line from stdin
+        line = STDIN.gets
+        break if line.nil? # EOF
+        
+        next if line.strip.empty?
+        
+        # Parse JSON-RPC request
+        request = JSON.parse(line.strip)
+        
+        # Handle the request
+        response = @handlers.handle(request)
+        
+        # Write response to stdout if there is one
+        if response
+          STDOUT.puts JSON.generate(response)
+          STDOUT.flush
+        end
+      rescue JSON::ParserError => e
+        error_response = {
+          jsonrpc: "2.0",
+          error: {
+            code: -32700,
+            message: "Parse error",
+            data: e.message
+          }
+        }
+        STDOUT.puts JSON.generate(error_response)
+        STDOUT.flush
+      rescue StandardError => e
+        STDERR.puts "Error: #{e.message}"
+        STDERR.puts e.backtrace if ENV["DEBUG"]
+        
+        error_response = {
+          jsonrpc: "2.0",
+          error: {
+            code: -32603,
+            message: "Internal error",
+            data: e.message
+          }
+        }
+        STDOUT.puts JSON.generate(error_response)
+        STDOUT.flush
+      end
+    end
+    
+    STDERR.puts "MCP server shutting down"
+  rescue Interrupt
+    STDERR.puts "\nShutting down MCP server..."
+    OpenGemdocs::Yard.stop_server
+    exit 0
+  end
+end
+
+# Run the server
+server = MCPStdioServer.new
+server.run

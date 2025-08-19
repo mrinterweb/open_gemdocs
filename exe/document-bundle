@@ -1,4 +1,4 @@
-#!/bin/env bash
+#!/bin/bash
 
 bundle list | \
   awk '/ \* / {gsub(/[()]/, "", $3); print $2, $3}' | \

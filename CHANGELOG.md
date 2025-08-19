@@ -1,5 +1,9 @@
 ## [Unreleased]
 
+## [0.3.0] - 2025-04-27
+### Added
+- Added a MCP server that can serve local yard documentation for all installed gems. This allows AI agents to access gem documentation without needing to run a local server manually.
+
 ## [0.2.1] - 2025-04-26
 ### Changed
 - Fixed a bug where the `--local` option was not working correctly when a specific gem was specified. The command now correctly serves the documentation for the specified gem from the local server.
