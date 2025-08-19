@@ -1,5 +1,8 @@
-#!/bin/bash
+#!/usr/bin/env ruby
 
-bundle list | \
-  awk '/ \* / {gsub(/[()]/, "", $3); print $2, $3}' | \
-  while read gem version; do echo "Processing docs for: $gem $version"; yard gems "$gem" "$version"; done
+system(%q{
+bundle list | awk '/ \* / {gsub(/[()]/, "", $3); print $2, $3}' | while read gem version; do
+  echo "Processing docs for: $gem $version"
+  yard gems "$gem" "$version"
+done
+})
